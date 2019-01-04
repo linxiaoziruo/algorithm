@@ -1,33 +1,43 @@
 class Node {
-	constructor(opt) {
-		this.value = opt.value;
-		this.left = opt.left;
-		this.right = opt.right;
+	constructor(value) {
+		this.value = value;
 	}
 
-	isTree() {
-		return !(this.left == null && this.right == null)
+	isLeaf() {
+		return this.left == null && this.right == null
 	}
 
-	getValue() {
+	acqValue() {
 		return this.value;
 	}
 
+	insertLeft(node) {
+		this.left = node
+		node.parent = this;
+	}
+
+	insertRight(node) {
+		this.right = node;
+		node.parent = this;
+	}
+
 	getTree() {
-		if (this.isTree()) {
+		if (this.isLeaf()) {
+			return this.value;
+		} else {
 			return {
 				value: this.value,
-				left: this.left.getTree(),
-				right: this.right.getTree()
+				left: this.left ? this.left.getTree() : undefined,
+				right: this.right ? this.right.getTree() : undefined
 			}
-		} else {
-			return this.value;
 		}
 	}
 
 	leftTraverse(fn) {
 		let rs;
-		if (this.isTree()) {
+		if (this.isLeaf()) {
+			rs = fn(this.value)
+		} else {
 			if (this.left) {
 				this.left.leftTraverse(fn);
 			}
@@ -37,8 +47,6 @@ class Node {
 			if (this.right) {
 				this.right.leftTraverse(fn);
 			}
-		} else {
-			rs = fn(this.value)
 		}
 
 		return rs;
@@ -46,7 +54,10 @@ class Node {
 
 	rightTraverse(fn) {
 		let rs;
-		if (this.isTree()) {
+		if (this.isLeaf()) {
+			rs = fn(this.value)
+		} else {
+
 			if (this.right) {
 				this.right.rightTraverse(fn);
 			}
@@ -56,8 +67,6 @@ class Node {
 			if (this.left) {
 				this.left.rightTraverse(fn);
 			}
-		} else {
-			rs = fn(this.value)
 		}
 
 		return rs;
