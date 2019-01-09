@@ -1,14 +1,10 @@
 class Node {
 	constructor(value) {
 		this.value = value;
-		this.height = 1;
 		this.left = null;
 		this.right = null;
 		this.tree = null;
-	}
-
-	setHeight(height) {
-		this.height = height;
+		this.balanceFactor = 0;
 	}
 
 	setTree(tree) {
@@ -51,16 +47,14 @@ class Node {
 		if (node.acqValue() < this.value) {
 			if (this.left == null) {
 				this.left = node
-				this.left.parent = this;
-				this.left.setHeight(this.height + 1);
+				this.left.setParent(this);
 			} else {
 				this.left.insert(node)
 			}
 		} else if (node.acqValue() > this.value) {
 			if (this.right == null) {
 				this.right = node
-				this.right.parent = this;
-				this.right.setHeight(this.height + 1);
+				this.right.setParent(this);
 			} else {
 				this.right.insert(node)
 			}
@@ -150,12 +144,7 @@ class Node {
 	}
 
 	isBalance() {
-		const leftHeight = 0,
-			rightHeight = 0;
-		if (this.left != null) leftHeight = this.left.acqHeight();
-		if (this.right != null) rightHeight = this.right.acqHeight();
-
-		return (Math.abs(leftHeight - rightHeight)) <= 1
+		return Math.abs(this.balanceFactor) <= 1
 	}
 
 	acqHeight() {
@@ -164,14 +153,33 @@ class Node {
 			rightHeight = 0;
 
 		if (this.left != null) {
-			leftHeight = this.left.acqHeight() + 1;
+			// console.log('left: ', this.left.acqValue());
+			leftHeight = this.left.acqHeight();
 		}
 
 		if (this.right != null) {
-			rightHeight = this.right.acqHeight() + 1;
+			// console.log('right: ', this.right.acqValue());
+			rightHeight = this.right.acqHeight();
 		}
 
-		return height + (leftHeight >= rightHeight ? leftHeight : rightHeight);
+		return height + (leftHeight >= rightHeight ? leftHeight : rightHeight);;
+	}
+
+	calFactor() {
+		let leftHeight = 0,
+			rightHeight = 0;
+
+		if (this.left != null) {
+			leftHeight = this.left.acqHeight();
+			this.left.calFactor();
+		}
+
+		if (this.right != null) {
+			rightHeight = this.right.acqHeight();
+			this.right.calFactor();
+		}
+
+		this.balanceFactor = leftHeight - rightHeight;
 	}
 
 	acqLeaf() {
@@ -189,6 +197,30 @@ class Node {
 
 	acqParent() {
 		return this.parent;
+	}
+
+	acqBalanceFactor() {
+		return this.balanceFactor;
+	}
+
+	setParent(parent) {
+		this.parent = parent;
+	}
+
+	isRoot() {
+		return this.parent == null;
+	}
+
+	acqTree() {
+		if (this.isLeaf()) {
+			return this.value;
+		} else {
+			return {
+				value: this.value,
+				left: this.left ? this.left.acqTree() : undefined,
+				right: this.right ? this.right.acqTree() : undefined
+			}
+		}
 	}
 }
 
