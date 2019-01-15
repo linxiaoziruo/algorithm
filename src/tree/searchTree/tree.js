@@ -1,12 +1,6 @@
-class Tree {
-	constructor() {
-		this.root = null;
-	}
+const PTree = require('../common/tree');
 
-	acqRoot() {
-		return this.root
-	}
-
+class Tree extends PTree {
 	insert(node) {
 		if (this.root == null) {
 			this.root = node;
@@ -20,10 +14,6 @@ class Tree {
 		const minNode = rootNode.findMinNode();
 		this.root.setValue(minNode.acqValue());
 		minNode.parent.setLeft(null);
-	}
-
-	find(value) {
-		return this.root.find(value)
 	}
 }
 

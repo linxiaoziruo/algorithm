@@ -1,28 +1,16 @@
-class Tree {
-	constructor() {
-		this.root = null;
-	}
+const PTree = require('../common/tree');
 
-	acqRoot() {
-		return this.root
-	}
-
+class Tree extends PTree {
 	insert(node) {
-		node.setTree(this);
-
 		if (this.root == null) {
 			this.root = node;
 		} else {
 			this.root.insert(node);
 		}
 
-		this.recal();
-		this.balance(node);
-		this.recal();
-	}
-
-	recal() {
-		this.root.calFactor();
+		this._recal();
+		this._balance(node);
+		this._recal();
 	}
 
 	delete(node) {
@@ -32,11 +20,11 @@ class Tree {
 		minNode.parent.setLeft(null);
 	}
 
-	find(value) {
-		return this.root.find(value)
+	_recal() {
+		this.root.calFactor();
 	}
 
-	balance(x) {
+	_balance(x) {
 		let b = null;
 
 		this.root.middleTraverse(function(node) {
@@ -231,10 +219,6 @@ class Tree {
 				}
 			}
 		}
-	}
-
-	acqTree() {
-		return this.root.acqTree();
 	}
 }
 

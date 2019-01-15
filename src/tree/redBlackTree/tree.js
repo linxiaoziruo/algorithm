@@ -1,8 +1,6 @@
-class Tree {
-	constructor() {
-		this.root = null;
-	}
+const PTree = require('../common/tree');
 
+class Tree extends PTree {
 	insert(node) {
 		if (this.root == null) {
 			this.root = node;
@@ -11,10 +9,10 @@ class Tree {
 			this.root.insert(node);
 		}
 
-		this.balance();
+		this._balance();
 	}
 
-	balance() {
+	_balance() {
 		let x = null;
 		this.root.middleTraverse(function(node) {
 			let parent = node.acqParent();
@@ -101,11 +99,7 @@ class Tree {
 			}
 		}
 
-		this.balance();
-	}
-
-	acqTree() {
-		return this.root.acqTree();
+		this._balance();
 	}
 }
 
