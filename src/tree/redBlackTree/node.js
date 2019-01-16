@@ -18,6 +18,22 @@ class Node extends PNode {
 	acqColor() {
 		return this.color;
 	}
+
+	acqTree() {
+		if (this.isLeaf()) {
+			return {
+				value: this.value,
+				color: this.color
+			}
+		} else {
+			return {
+				value: this.value,
+				color: this.color,
+				left: this.left ? this.left.acqTree() : undefined,
+				right: this.right ? this.right.acqTree() : undefined
+			}
+		}
+	}
 }
 
 module.exports = Node;

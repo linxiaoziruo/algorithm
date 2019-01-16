@@ -7,6 +7,9 @@ const tree = new Tree()
 array.forEach(node => {
 	const nodeIns = new Node(node);
 	tree.insert(nodeIns);
+	console.log(node, tree.acqBalanceNum());
 });
 
-console.log(JSON.stringify(tree.acqTree()))
+// console.log(JSON.stringify(tree.acqTree()))
+
+// console.log(tree.acqBalanceNum());

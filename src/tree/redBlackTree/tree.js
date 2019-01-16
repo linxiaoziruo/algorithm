@@ -1,6 +1,12 @@
 const PTree = require('../common/tree');
+const Node = require('./node');
 
 class Tree extends PTree {
+	constructor() {
+		super();
+		this.balcane_num = 0;
+	}
+
 	insert(node) {
 		if (this.root == null) {
 			this.root = node;
@@ -12,94 +18,144 @@ class Tree extends PTree {
 		this._balance();
 	}
 
-	_balance() {
-		let x = null;
-		this.root.middleTraverse(function(node) {
-			let parent = node.acqParent();
-			if (parent != null) {
-				if (node.acqColor() == 'red' && parent.acqColor() == 'red') {
-					x = node;
-				}
-			}
-		});
+	_balance(x) {
+		//----------------封装x-------------------
 
+		x = this._acqX(x);
 		if (x == null) return;
 
+		this.balcane_num += 1;
+
+		//----------------关键节点-----------------
+
 		let parent = x.acqParent();
-
 		let brother = null;
-		if (x.acqIsLeft() == 1) {
-			brother = parent.acqRight();
-		} else {
-			brother = parent.acqLeft();
-		}
-
-		let grandFather = parent.acqParent();
-
 		let uncle = null;
-		if (parent.acqIsLeft() == 1) {
-			uncle = grandFather.acqRight();
-		} else {
-			uncle = grandFather.acqLeft();
+		let grandFather = null;
+
+		if (parent != null) {
+			if (x.acqIsLeft() == 1) {
+				brother = parent.acqRight();
+			} else {
+				brother = parent.acqLeft();
+			}
+
+			grandFather = parent.acqParent();
+
+			if (grandFather != null) {
+				if (parent.acqIsLeft() == 1) {
+					uncle = grandFather.acqRight();
+				} else {
+					uncle = grandFather.acqLeft();
+				}
+			}
 		}
 
-		if (uncle != null && uncle.acqColor() == 'red' && parent.acqColor() == 'red') {
+		//----------------遍历各种旋转情况-----------
+
+		if (x.isRoot()) {
+			x.setColor('black');
+		} else if (uncle != null && uncle.acqColor() == 'red' && parent.acqColor() == 'red') {
 			parent.setColor('black');
 			uncle.setColor('black');
 			grandFather.setColor('red');
-		} else if (parent.acqColor() == 'red' && x.acqIsLeft() == 0) {
-			if (uncle == null || (uncle != null && uncle.acqColor() == 'black')) {
-				let xl = x.acqLeft();
-				let xp = x.acqParent();
-				let xpp = xp.acqParent();
 
-				if (xp.acqIsLeft() == 1) {
-					xpp.setLeft(x);
-				} else if (xp.acqIsLeft() == 0) {
-					xpp.setRight(x);
+			this._balance(grandFather);
+		} else if (parent.acqColor() == 'red' && (uncle == null || (uncle != null && uncle.acqColor() == 'black'))) {
+			let isLeft = x.acqParent().acqIsLeft() == 1;
+			let isSubLeft = x.acqIsLeft() == 1;
+
+			if (isLeft && isSubLeft) {
+				let p = x.acqParent();
+				let pr = p.acqRight()
+				let g = p.acqParent();
+				let gp = g.acqParent();
+
+				if (g.acqIsLeft() == 1) {
+					gp.setLeft(p);
+				} else if (g.acqIsLeft() == 0) {
+					gp.setRight(p);
+				} else if (g.acqIsLeft() == null) {
+					this.setRoot(p);
 				}
 
-				x.setParent(xpp);
-				x.setLeft(xp);
+				p.setParent(gp);
+				p.setRight(g);
+				p.setColor('black');
 
-				xp.setParent(x);
-				xp.setRight(xl);
-
-				if (xl != null) {
-					xl.setParent(xp);
-				}
+				g.setLeft(pr);
+				g.setColor('red');
 			}
-		} else if (parent.acqColor() == 'red' && x.acqIsLeft() == 1) {
 
-			if (uncle == null || (uncle != null && uncle.acqColor() == 'black')) {
-				let xp = x.acqParent();
-				let xpr = xp.acqRight()
-				let xpp = xp.acqParent();
-				let xppp = xpp.acqParent();
+			if (isLeft && !isSubLeft) {
+				let xl = x.acqLeft();
+				let p = x.acqParent();
+				let g = p.acqParent();
 
-				if (xpp.acqIsLeft() == 1) {
-					xppp.setLeft(xp);
-				} else if (xpp.acqIsLeft() == 0) {
-					xppp.setRight(xp);
-				} else if (xpp.acqIsLeft() == null) {
-					this.root = xp;
+				g.setLeft(x);
+
+				x.setLeft(p);
+
+				p.setRight(xl);
+
+				this._balance(p);
+			}
+
+			if (!isLeft && isSubLeft) {
+				let xr = x.acqRight();
+				let p = x.acqParent();
+				let g = p.acqParent();
+
+				g.setRight(x);
+
+				x.setRight(p);
+
+				p.setLeft(xr);
+
+				this._balance(p);
+			}
+
+			if (!isLeft && !isSubLeft) {
+				let p = x.acqParent();
+				let pl = p.acqLeft()
+				let g = p.acqParent();
+				let gp = g.acqParent();
+
+				if (g.acqIsLeft() == 1) {
+					gp.setLeft(p);
+				} else if (g.acqIsLeft() == 0) {
+					gp.setRight(p);
+				} else if (g.acqIsLeft() == null) {
+					this.setRoot(p);
 				}
 
-				xp.setParent(xppp);
-				xp.setRight(xpp);
-				xp.setColor('black');
+				p.setParent(gp);
+				p.setLeft(g);
+				p.setColor('black');
 
-				xpp.setParent(xp);
-				xpp.setLeft(xpr);
-				xpp.setColor('red');
-
-				if (xpr != null) {
-					xpr.setParent(xpp);
-				}
+				g.setRight(pl);
+				g.setColor('red');
 			}
 		}
+	}
 
-		this._balance();
+	_acqX(x) {
+		if (x == null) {
+			this.root.middleTraverse(function(node) {
+				let parent = node.acqParent();
+				if (parent != null) {
+					if (node.acqColor() == 'red' && parent.acqColor() == 'red') {
+						x = node;
+					}
+				}
+			});
+		}
+
+		return x;
+	}
+
+	acqBalanceNum() {
+		return this.balcane_num;
 	}
 }
 

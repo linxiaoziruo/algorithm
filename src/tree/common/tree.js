@@ -7,6 +7,12 @@ class Tree {
 		return this.root
 	}
 
+	setRoot(node) {
+		this.root = node;
+		node.setIsLeft(null);
+		node.setParent(null);
+	}
+
 	find(value) {
 		if (this.root != null) return this.root.find(value)
 	}
